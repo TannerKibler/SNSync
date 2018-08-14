@@ -25,6 +25,8 @@ typedef struct SYNC_CONFIG SYNC_CONFIG;
 
 SYNC_CONFIG loadSyncConfig();
 char* seek_keys(char *str);
+int check_end_of_line(char);
+int check_splitter(char);
 
 #ifdef __cplusplus
 }

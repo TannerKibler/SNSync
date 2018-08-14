@@ -7,7 +7,7 @@ char* read_file(char* fileName) {
 	long length;
 
 	//TODO: Add Error checking
-	FILE *f = fopen ("/home/arch/code/c/SNSyncUtil/SNSyncConfig.txt", "rb");
+	FILE *f = fopen (fileName, "rb");
 	if (f) {
 		fseek (f, 0, SEEK_END);
 		length = ftell (f);
