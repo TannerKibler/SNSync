@@ -1,22 +1,13 @@
 #ifndef READ_CONF_H
 #define READ_CONF_H
 
-//#include <stdio.h>
-//#include <stdlib.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #include <string.h>
 #include "file.h"
-
-struct TYPES_LIST {
-	char *tableName;
-	char *extension;
-	char *fieldName;
-	struct TYPES_LIST *next;
-};
+#include "type_list.h"
 
 struct SYNC_CONFIG {
 	char *path;

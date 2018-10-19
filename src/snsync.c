@@ -3,6 +3,7 @@
 #include "libSNSync/read_conf.h"
 #include "libSNSync/json.h"
 #include "libSNSync/http.h"
+#include "libSNSync/type_list.h"
 
 int main(int argc, char** argv) {
 	struct SYNC_CONFIG sync_conf;

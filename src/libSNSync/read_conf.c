@@ -52,7 +52,7 @@ char* substring(char *str, int stIndex, int enIndex) {
 		loopIn++;
 	}
 
-	retString[loopIn+1] = '\0';
+	retString[loopIn] = '\0';
 
 	return retString;
 }
@@ -75,11 +75,12 @@ int check_end_of_line(char x) {
 
 SYNC_CONFIG loadSyncConfig() {
 	SYNC_CONFIG sync;
+	sync.firstType = NULL;
 	TYPES_LIST *firstType = NULL;
 	TYPES_LIST *placeholderTypes = NULL;
 	TYPES_LIST *currentType = NULL;
 	char *buffer = NULL;
-	char *str = NULL, *current_key = NULL, *tmp = NULL;
+	char *str = NULL, *current_key = NULL, *tmp = NULL, *substr = NULL;
 	char *value = NULL;
 	int reading = 0;
 	int i = 0, j = 1, x = 0, y = 0, z = 0, ln = 0;
@@ -143,33 +144,50 @@ SYNC_CONFIG loadSyncConfig() {
 					}
 					else if (strncmp(current_key, FILE_KEY, 10) == 0) {
 						if (currentType == NULL) { // FIRST TYPE NOT REALLY NULL??? CHECK THIS FIRST THING!
-							placeholderTypes = malloc((sizeof(TYPES_LIST))+8);
+							//placeholderTypes = malloc((sizeof(TYPES_LIST))+8);
+							placeholderTypes = initializeTypesList();
 							while (value[y] != '\0' && value[y] != EOF) {
 								if (check_splitter(value[y], SPLITTER_COMMA) == 1) {
+
+									// MAKE SURE YOU TRIM THE STRING AT THE COMMA, THIS IS STILL CATCHING THE PREV EXTENSION
+
+
 									// IF COMMA, we are going to start again
+									if (sync.firstType == NULL) {
+										sync.firstType = initializeTypesList();
+										sync.firstType = placeholderTypes;
+
+										placeholderTypes = defineNextType(&sync.firstType);
+									}
+									else {
+										currentType = placeholderTypes;
+										placeholderTypes = defineNextType(&currentType);
+									}
 								}
 								else if (check_splitter(value[y], SPLITTER_PERIOD) == 1) {
 									// IF PERIOD, we are grabbing the field name
 									ln = y - z;
-									placeholderTypes->fieldName = malloc(((sizeof(char))*((y-1)-z)) + 8);
-									placeholderTypes->fieldName = substring(value, z, y-1);
-									placeholderTypes->fieldName[ln] = '\0';
+									substr = malloc(((sizeof(char))*((y-1)-z)) + 8);
+									substr = substring(value, z, y-1);
+									defineFieldName(substr, &placeholderTypes);
 									z = (y+1);
 								}
 								else if (check_splitter(value[y], SPLITTER_COLON) == 1) {
 									// IF COLON, we are grabbing the table name
-									//tmp = substring(value, z, y-1);
 									ln = y - z;
-									placeholderTypes->tableName = malloc(((sizeof(char))*((y-1)-z)) + 8);
-									placeholderTypes->tableName = substring(value, z, y-1);
-									placeholderTypes->tableName[ln] = '\0';
+									substr = malloc(((sizeof(char))*((y-1)-z)) + 4);
+									substr = substring(value, z, y-1);
+									defineTableName(substr, &placeholderTypes);
 									z = (y+1);
-									//strcpy(placeholderTypes->tableName, value);
 								}
 								else if (x == y || (check_splitter(value[y], SPLITTER_SEMI) == 1)) {
 									// IF SEMICOLON OR EOL, we are grabbing the extension
 									ln = y - z;
 									if (x == y) { // End of string
+
+									// START HERE NEXT TIME, THIS NEEDS TO BE UPDATED
+
+									
 										placeholderTypes->extension = malloc(32);
 										placeholderTypes->extension = substring(value, z, y);
 										placeholderTypes->extension[ln+1] = '\0';	
@@ -181,10 +199,6 @@ SYNC_CONFIG loadSyncConfig() {
 
 									z = (y+1);
 
-									currentType = malloc(sizeof(TYPES_LIST) + 8);
-									sync.firstType = malloc(sizeof(TYPES_LIST) + 8);
-									currentType = placeholderTypes;
-									sync.firstType = placeholderTypes;
 								}
 								y++;
 							}
